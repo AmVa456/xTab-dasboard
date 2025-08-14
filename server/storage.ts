@@ -1,4 +1,9 @@
-import { type Platform, type InsertPlatform, type Post, type InsertPost } from "@shared/schema";
+import {
+  type Platform,
+  type InsertPlatform,
+  type Post,
+  type InsertPost,
+} from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -6,8 +11,11 @@ export interface IStorage {
   getPlatforms(): Promise<Platform[]>;
   getPlatform(id: string): Promise<Platform | undefined>;
   createPlatform(platform: InsertPlatform): Promise<Platform>;
-  updatePlatform(id: string, updates: Partial<Platform>): Promise<Platform | undefined>;
-  
+  updatePlatform(
+    id: string,
+    updates: Partial<Platform>
+  ): Promise<Platform | undefined>;
+
   // Post methods
   getPosts(): Promise<Post[]>;
   getPost(id: string): Promise<Post | undefined>;
@@ -31,13 +39,44 @@ export class MemStorage implements IStorage {
   private initializeData() {
     // Initialize default platforms
     const defaultPlatforms: Platform[] = [
-      { id: "reddit", name: "Reddit", type: "forum", color: "bg-orange-500", isConnected: 1 },
-      { id: "twitter", name: "Twitter", type: "social", color: "bg-blue-400", isConnected: 1 },
-      { id: "medium", name: "Medium", type: "blog", color: "bg-black", isConnected: 0 },
-      { id: "linkedin", name: "LinkedIn", type: "social", color: "bg-blue-600", isConnected: 1 },
+      {
+        id: "reddit",
+        name: "Reddit",
+        type: "forum",
+        color: "bg-orange-500",
+        isConnected: 1,
+      },
+      {
+        id: "twitter",
+        name: "Twitter",
+        type: "social",
+        color: "bg-blue-400",
+        isConnected: 1,
+      },
+      {
+        id: "medium",
+        name: "Medium",
+        type: "blog",
+        color: "bg-black",
+        isConnected: 0,
+      },
+      {
+        id: "linkedin",
+        name: "LinkedIn",
+        type: "social",
+        color: "bg-blue-600",
+        isConnected: 1,
+      },
+      {
+        id: "tumblr",
+        name: "Tumblr",
+        type: "blog", // or "forum", "blog"
+        color: "bg-blue-500",
+        isConnected: 1,
+      },
     ];
 
-    defaultPlatforms.forEach(platform => {
+    defaultPlatforms.forEach((platform) => {
       this.platforms.set(platform.id, platform);
     });
 
@@ -46,7 +85,8 @@ export class MemStorage implements IStorage {
       {
         id: randomUUID(),
         title: "Understanding Modern Web Development Trends",
-        content: "A comprehensive look at the latest frameworks and tools shaping web development...",
+        content:
+          "A comprehensive look at the latest frameworks and tools shaping web development...",
         excerpt: "A comprehensive look at the latest frameworks and tools...",
         platformId: "reddit",
         status: "published",
@@ -60,7 +100,8 @@ export class MemStorage implements IStorage {
       {
         id: randomUUID(),
         title: "Building Better User Experiences",
-        content: "Tips and strategies for improving UX design in modern applications...",
+        content:
+          "Tips and strategies for improving UX design in modern applications...",
         excerpt: "Tips and strategies for improving UX design...",
         platformId: "twitter",
         status: "scheduled",
@@ -88,7 +129,8 @@ export class MemStorage implements IStorage {
       {
         id: randomUUID(),
         title: "AI and Machine Learning in 2024",
-        content: "Key developments and predictions for AI adoption across industries...",
+        content:
+          "Key developments and predictions for AI adoption across industries...",
         excerpt: "Key developments and predictions for AI adoption...",
         platformId: "medium",
         status: "draft",
@@ -101,7 +143,7 @@ export class MemStorage implements IStorage {
       },
     ];
 
-    samplePosts.forEach(post => {
+    samplePosts.forEach((post) => {
       this.posts.set(post.id, post);
     });
   }
@@ -117,19 +159,22 @@ export class MemStorage implements IStorage {
 
   async createPlatform(insertPlatform: InsertPlatform): Promise<Platform> {
     const id = randomUUID();
-    const platform: Platform = { 
-      ...insertPlatform, 
+    const platform: Platform = {
+      ...insertPlatform,
       id,
-      isConnected: insertPlatform.isConnected ?? 0
+      isConnected: insertPlatform.isConnected ?? 0,
     };
     this.platforms.set(id, platform);
     return platform;
   }
 
-  async updatePlatform(id: string, updates: Partial<Platform>): Promise<Platform | undefined> {
+  async updatePlatform(
+    id: string,
+    updates: Partial<Platform>
+  ): Promise<Platform | undefined> {
     const platform = this.platforms.get(id);
     if (!platform) return undefined;
-    
+
     const updated = { ...platform, ...updates };
     this.platforms.set(id, updated);
     return updated;
@@ -137,8 +182,9 @@ export class MemStorage implements IStorage {
 
   // Post methods
   async getPosts(): Promise<Post[]> {
-    return Array.from(this.posts.values()).sort((a, b) => 
-      new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+    return Array.from(this.posts.values()).sort(
+      (a, b) =>
+        new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
     );
   }
 
@@ -149,10 +195,10 @@ export class MemStorage implements IStorage {
   async createPost(insertPost: InsertPost): Promise<Post> {
     const id = randomUUID();
     const now = new Date();
-    const post: Post = { 
-      ...insertPost, 
-      id, 
-      createdAt: now, 
+    const post: Post = {
+      ...insertPost,
+      id,
+      createdAt: now,
       updatedAt: now,
       likes: 0,
       comments: 0,
@@ -164,10 +210,13 @@ export class MemStorage implements IStorage {
     return post;
   }
 
-  async updatePost(id: string, updates: Partial<Post>): Promise<Post | undefined> {
+  async updatePost(
+    id: string,
+    updates: Partial<Post>
+  ): Promise<Post | undefined> {
     const post = this.posts.get(id);
     if (!post) return undefined;
-    
+
     const updated = { ...post, ...updates, updatedAt: new Date() };
     this.posts.set(id, updated);
     return updated;
@@ -179,14 +228,20 @@ export class MemStorage implements IStorage {
 
   async getPostsByPlatform(platformId: string): Promise<Post[]> {
     return Array.from(this.posts.values())
-      .filter(post => post.platformId === platformId)
-      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+      .filter((post) => post.platformId === platformId)
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+      );
   }
 
   async getPostsByStatus(status: string): Promise<Post[]> {
     return Array.from(this.posts.values())
-      .filter(post => post.status === status)
-      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+      .filter((post) => post.status === status)
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+      );
   }
 }
 
