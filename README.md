@@ -73,7 +73,7 @@ A modern, full-stack web application for managing posts across multiple social m
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/xtab-dashboard.git
+git clone https://github.com/amva456/xtab-dashboard.git
 cd xtab-dashboard
 ```
 
